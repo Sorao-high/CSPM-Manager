@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="max-w-xl mx-auto mt-20">
+    <div class="glass-panel p-8 border-amber/50 relative overflow-hidden">
+        <!-- Warning Stripe -->
+        <div class="absolute top-0 left-0 w-full h-1 bg-amber shadow-[0_0_10px_#FFB86C]"></div>
+        
+        <h2 class="text-3xl font-bold text-white uppercase tracking-wider mb-2">Confirm Deletion</h2>
+        <p class="text-amber font-mono text-sm mb-8">WARNING: THIS ACTION CANNOT BE UNDONE.</p>
+
+        <div class="p-6 bg-slate-900/50 border border-slate-700 mb-8">
+            <p class="text-slate-400 text-sm font-mono uppercase">Target Object:</p>
+            <p class="text-xl text-white font-bold mt-2">{{ object }}</p>
+            {% if object.cloudaccount_set %}
+                <p class="text-xs text-slate-500 mt-2 font-mono">
+                    *Deleting this group will also delete {{ object.cloudaccount_set.count }} linked accounts.
+                </p>
+            {% endif %}
+        </div>
+
+        <form method="post" class="flex justify-end gap-4">
+            {% csrf_token %}
+            <a href="{% url 'account_list' %}" class="px-6 py-3 border border-slate-700 text-slate-400 hover:text-white transition-colors font-bold uppercase text-sm">
+                Cancel
+            </a>
+            <button type="submit" class="bg-amber text-obsidian px-8 py-3 font-bold hover:bg-white transition-colors uppercase text-sm tracking-wider">
+                Execute Delete
+            </button>
+        </form>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,142 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="space-y-8 pb-20">
+    <!-- Header -->
+    <div class="flex flex-col md:flex-row justify-between items-center gap-4 pb-4 border-b border-border">
+        <h2 class="text-2xl font-bold text-slate-800">Organization Structure</h2>
+        
+        <div class="flex w-full md:w-auto gap-3">
+            <form method="get" class="flex w-full md:w-auto relative">
+                <input type="text" name="q" placeholder="Search..." 
+                       value="{{ request.GET.q|default:'' }}"
+                       class="bg-white border border-border text-slate-800 px-4 py-2 w-full md:w-64 rounded-md focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary text-sm shadow-sm transition-all">
+            </form>
+
+            <a href="{% url 'account_add' %}" class="bg-slate-900 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-slate-700 transition-colors flex items-center gap-2 shadow-sm whitespace-nowrap">
+                <span>+</span> New Asset
+            </a>
+        </div>
+    </div>
+
+    <!-- 部署ループ -->
+    {% for department in departments %}
+    <div class="space-y-3 animate-fade-in">
+        <div class="flex items-baseline gap-2 mt-8 mb-2">
+            <h3 class="text-lg font-bold text-slate-800">{{ department.name }}</h3>
+            <span class="text-slate-400 text-xs font-medium bg-slate-100 px-2 py-0.5 rounded-full">{{ department.monitorgroup_set.count }} Groups</span>
+        </div>
+
+        <!-- アコーディオン -->
+        <div class="space-y-3">
+            {% for group in department.monitorgroup_set.all %}
+            <details class="group card open:shadow-md transition-shadow duration-200">
+                <summary class="flex items-center justify-between p-4 cursor-pointer hover:bg-slate-50 transition-colors list-none select-none rounded-t-md">
+                    <div class="flex items-center gap-3">
+                        <div class="w-6 h-6 flex items-center justify-center rounded-full bg-slate-100 text-slate-400 group-open:bg-primary group-open:text-white transition-colors text-xs">
+                            <span class="group-open:rotate-90 transition-transform duration-200">▶</span>
+                        </div>
+                        <div>
+                            <div class="flex items-center gap-2">
+                                <h4 class="font-bold text-slate-700">{{ group.name }}</h4>
+                                {% if group.group_id %}
+                                    <span class="text-[10px] font-mono text-slate-500 bg-slate-100 px-1.5 py-0.5 rounded border border-slate-200">#{{ group.group_id }}</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="flex gap-2">
+                        <span class="text-xs font-medium text-slate-500 px-2 py-1 bg-slate-100 rounded">{{ group.cloudaccount_set.count }} Accounts</span>
+                    </div>
+                </summary>
+
+                <div class="p-6 border-t border-border bg-slate-50/50">
+                    <div class="flex justify-end gap-2 mb-6">
+                        <a href="{% url 'group_edit' group.pk %}" class="text-xs font-medium text-primary hover:text-primary-hover hover:underline">Edit Group Info</a>
+                        <span class="text-slate-300">|</span>
+                        <a href="{% url 'group_delete' group.pk %}" class="text-xs font-medium text-red-500 hover:text-red-600 hover:underline">Delete</a>
+                    </div>
+
+                    <!-- 管理情報パネル -->
+                    <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+                        {% for label, val in group_info.items %} <!-- 簡略化のため直書きします -->
+                        <div class="p-3 bg-white border border-border rounded-md shadow-sm">
+                            <p class="text-[10px] text-slate-400 uppercase font-bold tracking-wider mb-1">Responsible</p>
+                            <p class="text-sm text-slate-700 font-mono break-all">{{ group.responsible_contact }}</p>
+                        </div>
+                        <div class="p-3 bg-white border border-border rounded-md shadow-sm">
+                            <p class="text-[10px] text-slate-400 uppercase font-bold tracking-wider mb-1">CC Contact</p>
+                            <p class="text-sm text-slate-700 font-mono break-all">{{ group.cc_contact|default:"-" }}</p>
+                        </div>
+                        <div class="p-3 bg-white border border-border rounded-md shadow-sm">
+                            <p class="text-[10px] text-slate-400 uppercase font-bold tracking-wider mb-1">Alert Email</p>
+                            <p class="text-sm text-slate-700 font-mono break-all">{{ group.alert_email }}</p>
+                        </div>
+                        <div class="p-3 bg-white border border-border rounded-md shadow-sm">
+                            <p class="text-[10px] text-slate-400 uppercase font-bold tracking-wider mb-1">Report Email</p>
+                            <p class="text-sm text-slate-700 font-mono break-all">{{ group.report_email }}</p>
+                        </div>
+                        {% endfor %}
+                    </div>
+
+                    <!-- テーブル -->
+                    {% if group.cloudaccount_set.exists %}
+                    <div class="overflow-hidden border border-border rounded-lg shadow-sm">
+                        <table class="w-full text-left bg-white">
+                            <thead class="bg-slate-50 text-xs text-slate-500 uppercase font-bold border-b border-border">
+                                <tr>
+                                    <th class="px-4 py-3">Provider</th>
+                                    <th class="px-4 py-3">Name</th>
+                                    <th class="px-4 py-3">ID</th>
+                                    <th class="px-4 py-3">Dates</th>
+                                    <th class="px-4 py-3">Status</th>
+                                    <th class="px-4 py-3 text-right">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-border text-sm text-slate-600">
+                                {% for account in group.cloudaccount_set.all %}
+                                <tr class="hover:bg-slate-50">
+                                    <td class="px-4 py-3 font-medium">{{ account.provider }}</td>
+                                    <td class="px-4 py-3 font-bold text-slate-800">{{ account.name }}</td>
+                                    <td class="px-4 py-3 font-mono text-xs">{{ account.account_id }}</td>
+                                    <td class="px-4 py-3 text-xs">
+                                        <div>Req: {{ account.request_date|date:"Y/m/d"|default:"-" }}</div>
+                                        <div class="text-slate-400">Con: {{ account.connection_date|date:"Y/m/d"|default:"-" }}</div>
+                                    </td>
+                                    <td class="px-4 py-3">
+                                        {% if account.status == 'Connected' %}
+                                            <span class="inline-flex items-center gap-1.5 px-2 py-1 rounded-full text-xs font-medium bg-emerald-50 text-emerald-700">
+                                                <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> Active
+                                            </span>
+                                        {% else %}
+                                            <span class="inline-flex items-center gap-1.5 px-2 py-1 rounded-full text-xs font-medium bg-slate-100 text-slate-600">
+                                                <span class="w-1.5 h-1.5 rounded-full bg-slate-400"></span> {{ account.status }}
+                                            </span>
+                                        {% endif %}
+                                    </td>
+                                    <td class="px-4 py-3 text-right">
+                                        <a href="{% url 'account_edit' account.pk %}" class="text-primary hover:underline font-medium text-xs mr-2">Edit</a>
+                                        <a href="{% url 'account_delete' account.pk %}" class="text-slate-400 hover:text-red-500 hover:underline font-medium text-xs">Del</a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                        <div class="p-6 text-center bg-white border border-dashed border-border rounded-lg text-slate-400 text-sm">No linked accounts.</div>
+                    {% endif %}
+                </div>
+            </details>
+            {% endfor %}
+        </div>
+    </div>
+    {% empty %}
+    <div class="text-center py-20 text-slate-400">No data found.</div>
+    {% endfor %}
+</div>
+<style>
+    details > summary { list-style: none; }
+    details > summary::-webkit-details-marker { display: none; }
+</style>
+{% endblock %}

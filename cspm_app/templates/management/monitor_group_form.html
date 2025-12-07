@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="max-w-2xl mx-auto">
+    <div class="flex items-center gap-4 mb-8 tech-border-b pb-4">
+        <a href="{% url 'account_list' %}" class="text-slate-500 hover:text-cyan transition-colors">
+            <span class="text-xl">❮</span> BACK
+        </a>
+        <h2 class="text-3xl font-bold text-white uppercase tracking-wider">Edit Group Info</h2>
+    </div>
+
+    <div class="glass-panel p-8">
+        <form method="post" class="space-y-6">
+            {% csrf_token %}
+            {% for field in form %}
+            <div class="space-y-2">
+                <label class="block text-xs font-mono uppercase tracking-widest text-slate-400">
+                    {{ field.label }}
+                </label>
+                {{ field }}
+                {% if field.errors %}<div class="text-amber text-xs font-mono">{{ field.errors.0 }}</div>{% endif %}
+            </div>
+            {% endfor %}
+
+            <div class="pt-6 flex justify-end gap-4">
+                <button type="submit" class="bg-cyan text-obsidian px-8 py-3 font-bold hover:bg-white transition-all uppercase text-sm">
+                    Update Information
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

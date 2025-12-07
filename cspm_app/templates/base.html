@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CSPM MANAGER</title>
+    <!-- Fonts: Inter (読みやすさ重視) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind CSS & Chart.js -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace'],
+                    },
+                    colors: {
+                        // メインカラー: 信頼のブルー
+                        primary: {
+                            DEFAULT: '#2563EB', // Blue-600
+                            light: '#EFF6FF',   // Blue-50
+                            hover: '#1D4ED8',   // Blue-700
+                        },
+                        // ベースカラー
+                        surface: '#FFFFFF',
+                        background: '#F8FAFC', // Slate-50
+                        border: '#E2E8F0',     // Slate-200
+                        text: {
+                            main: '#0F172A',   // Slate-900
+                            sub: '#64748B',    // Slate-500
+                        }
+                    },
+                    boxShadow: {
+                        'soft': '0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03)',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            background-color: #F8FAFC;
+            color: #0F172A;
+        }
+        .card {
+            background-color: #FFFFFF;
+            border: 1px solid #E2E8F0;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+        .nav-item {
+            color: #64748B;
+            transition: all 0.2s;
+        }
+        .nav-item:hover, .nav-item.active {
+            color: #2563EB;
+            background-color: #EFF6FF;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col font-sans text-text-main">
+
+    <!-- Header -->
+    <header class="h-16 bg-surface border-b border-border flex items-center justify-between px-8 sticky top-0 z-50">
+        <div class="flex items-center gap-3">
+            <div class="w-8 h-8 bg-primary text-white flex items-center justify-center rounded font-bold text-xl">C</div>
+            <h1 class="text-lg font-bold tracking-tight text-slate-800">CSPM <span class="text-primary font-normal">Manager</span></h1>
+        </div>
+        <nav class="flex gap-2 text-sm font-medium">
+            <a href="{% url 'dashboard' %}" class="nav-item px-4 py-2 rounded-md {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}">Dashboard</a>
+            <a href="{% url 'account_list' %}" class="nav-item px-4 py-2 rounded-md {% if request.resolver_match.url_name == 'account_list' %}active{% endif %}">Accounts</a>
+            <a href="/admin/" class="nav-item px-4 py-2 rounded-md hover:text-slate-900">Admin</a>
+        </nav>
+    </header>
+
+    <!-- Main Content -->
+    <main class="flex-grow p-8 max-w-7xl mx-auto w-full">
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer class="text-center py-8 text-xs text-slate-400 border-t border-border mt-8">
+        © 2025 CSPM Operation Team. Internal Use Only.
+    </footer>
+</body>
+</html>
